@@ -1,4 +1,4 @@
-"""Entry point to build the database, exercise vulnerabilities, and show fixes."""
+"""Entry point to build the database, exercise vulnerabilities, and toggle fixes."""
 from __future__ import annotations
 
 import argparse
@@ -64,20 +64,38 @@ def main() -> None:
         action="store_true",
         help="Пересоздать базу данных перед запуском проверок",
     )
+    parser.add_argument(
+        "--apply-patch",
+        action="store_true",
+        help=(
+            "Применить исправления и показать, что инъекции больше не срабатывают."
+            " По умолчанию демонстрируются только уязвимые сценарии."
+        ),
+    )
+    parser.add_argument(
+        "--show-both",
+        action="store_true",
+        help="Вывести и уязвимый, и исправленный сценарии в одном запуске",
+    )
     args = parser.parse_args()
 
     if args.refresh_db or not db_setup.DB_PATH.exists():
         db_setup.initialize_database()
 
-    with vulnerable_app.connect() as conn:
-        vulnerable_results = demonstrate_vulnerabilities(conn)
+    show_patched = args.apply_patch or args.show_both
+    show_vulnerable = not args.apply_patch or args.show_both
 
-    with patched_app.connect() as conn:
-        patched_results = demonstrate_patches(conn)
+    if show_vulnerable:
+        with vulnerable_app.connect() as conn:
+            vulnerable_results = demonstrate_vulnerabilities(conn)
+        print(format_results("Vulnerable query results", vulnerable_results))
+        if show_patched:
+            print()
 
-    print(format_results("Vulnerable query results", vulnerable_results))
-    print()
-    print(format_results("Patched query results", patched_results))
+    if show_patched:
+        with patched_app.connect() as conn:
+            patched_results = demonstrate_patches(conn)
+        print(format_results("Patched query results", patched_results))
 
 
 if __name__ == "__main__":
