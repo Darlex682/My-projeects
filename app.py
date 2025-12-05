@@ -12,6 +12,16 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 
+def ensure_db_setup():
+    """Create database tables once at startup."""
+    with app.app_context():
+        db.create_all()
+
+
+# Ensure tables exist when the module is imported (local run and WSGI hosting).
+ensure_db_setup()
+
+
 class Project(db.Model):
     __tablename__ = "projects"
 
@@ -31,11 +41,6 @@ class Project(db.Model):
             "description": self.description,
             "created_at": self.created_at.isoformat(),
         }
-
-
-@app.before_first_request
-def setup_db():
-    db.create_all()
 
 
 @app.context_processor

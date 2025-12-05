@@ -20,3 +20,4 @@
 3. Откройте [http://localhost:5000](http://localhost:5000).
 
 Для смены СУБД замените `SQLALCHEMY_DATABASE_URI` в `app.py` (например, на `postgresql://user:pass@host/db`).
+При старте приложения таблицы создаются автоматически.
