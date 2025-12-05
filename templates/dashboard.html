@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Дашборд</h1>
+<div class="stats">
+  <div class="card"><span>Всего проектов</span><strong>{{ total_projects }}</strong></div>
+  {% for status, count in status_summary.items() %}
+    <div class="card"><span>{{ status }}</span><strong>{{ count }}</strong></div>
+  {% endfor %}
+</div>
+<section>
+  <h2>Последние проекты</h2>
+  <table class="data-table">
+    <thead><tr><th>Название</th><th>Владелец</th><th>Статус</th><th>Дата</th></tr></thead>
+    <tbody>
+      {% for project in recent_projects %}
+        <tr>
+          <td><a href="{{ url_for('project_detail', project_id=project.id) }}">{{ project.name }}</a></td>
+          <td>{{ project.owner }}</td>
+          <td>{{ project.status }}</td>
+          <td>{{ project.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="4">Данных пока нет</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

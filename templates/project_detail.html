@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<article class="card">
+  <header class="card-header">
+    <div>
+      <p class="eyebrow">{{ project.owner }}</p>
+      <h1>{{ project.name }}</h1>
+    </div>
+    <span class="badge">{{ project.status }}</span>
+  </header>
+  <p>{{ project.description or 'Описание отсутствует' }}</p>
+  <dl class="meta-list">
+    <div>
+      <dt>Создан</dt><dd>{{ project.created_at.strftime('%d.%m.%Y %H:%M') }}</dd>
+    </div>
+    <div>
+      <dt>ID</dt><dd>{{ project.id }}</dd>
+    </div>
+  </dl>
+  <div class="cta-row">
+    <a class="link" href="{{ url_for('list_projects') }}">← Назад к списку</a>
+    <a class="link" href="{{ url_for('projects_api') }}" target="_blank">Открыть в API</a>
+  </div>
+</article>
+{% endblock %}

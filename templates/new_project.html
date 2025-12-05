@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Новый проект</h1>
+<form class="form" method="post">
+  {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+  <label>Название<input name="name" required></label>
+  <label>Владелец<input name="owner" required></label>
+  <label>Статус
+    <select name="status">
+      <option value="Planned">Planned</option>
+      <option value="Active">Active</option>
+      <option value="Completed">Completed</option>
+    </select>
+  </label>
+  <label>Описание<textarea name="description" rows="4"></textarea></label>
+  <button type="submit">Сохранить</button>
+</form>
+{% endblock %}
