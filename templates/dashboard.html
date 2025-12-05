@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Дашборд</h1>
+<div class="stats">
+  <div class="card"><span>Всего проектов</span><strong>{{ total_projects }}</strong></div>
+  {% for status, count in status_summary.items() %}
+    <div class="card"><span>{{ status }}</span><strong>{{ count }}</strong></div>
+  {% endfor %}
+</div>
+<section class="card chart-card">
+  <div class="card-header">
+    <div>
+      <p class="eyebrow">Динамика</p>
+      <h2 style="margin:0">Распределение по статусу</h2>
+    </div>
+  </div>
+  <canvas id="statusChart" height="220" aria-label="Диаграмма статусов" role="img"></canvas>
+</section>
+<section>
+  <h2>Последние проекты</h2>
+  <table class="data-table">
+    <thead><tr><th>Название</th><th>Владелец</th><th>Статус</th><th>Дата</th></tr></thead>
+    <tbody>
+      {% for project in recent_projects %}
+        <tr>
+          <td><a href="{{ url_for('project_detail', project_id=project.id) }}">{{ project.name }}</a></td>
+          <td>{{ project.owner }}</td>
+          <td>{{ project.status }}</td>
+          <td>{{ project.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="4">Данных пока нет</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% block scripts %}
+  {{ super() }}
+  <script>
+    const ctx = document.getElementById('statusChart');
+    const labels = {{ chart_labels|tojson }};
+    const values = {{ chart_values|tojson }};
+
+    const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#6366f1'];
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Кол-во проектов',
+          data: values,
+          backgroundColor: labels.map((_, i) => palette[i % palette.length]),
+          borderRadius: 6,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0f172a',
+            titleColor: '#fff',
+            bodyColor: '#e5e7eb',
+          }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+      }
+    });
+  </script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">Локальный сайт с масштабируемой БД</p>
+    <h1>Центр управления проектами</h1>
+    <p>Следите за задачами команды, быстро добавляйте новые проекты и подключайте API.</p>
+    <div class="stats">
+      <div class="card"><span>Всего</span><strong>{{ total_projects }}</strong></div>
+      <div class="card"><span>Активные</span><strong>{{ active }}</strong></div>
+      <div class="card"><span>План</span><strong>{{ planned }}</strong></div>
+      <div class="card"><span>Завершены</span><strong>{{ completed }}</strong></div>
+    </div>
+    <div class="cta-row">
+      <a class="btn" href="{{ url_for('create_project') }}">Добавить проект</a>
+      <a class="link" href="{{ url_for('dashboard') }}">Открыть дашборд</a>
+    </div>
+  </div>
+</section>
+<section class="feature-grid">
+  <article>
+    <h3>Пять страниц</h3>
+    <p>Главная, список, карточка проекта, создание и дашборд уже готовы. Плюс JSON API.</p>
+  </article>
+  <article>
+    <h3>Масштабируемая архитектура</h3>
+    <p>SQLAlchemy позволяет перенести БД с SQLite на Postgres без изменения приложения.</p>
+  </article>
+  <article>
+    <h3>Локальный режим</h3>
+    <p>Все данные хранятся рядом с проектом. При развёртывании путь к БД можно вынести в переменные окружения.</p>
+  </article>
+</section>
+{% endblock %}

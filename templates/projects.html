@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Проекты</h1>
+<form class="filter" method="get">
+  <input type="text" name="q" placeholder="Поиск по названию или владельцу" value="{{ search }}">
+  <button type="submit">Найти</button>
+  <a class="link" href="{{ url_for('create_project') }}">+ Новый</a>
+</form>
+<div class="cards">
+  {% for project in projects %}
+    <article class="card">
+      <header>
+        <h3><a href="{{ url_for('project_detail', project_id=project.id) }}">{{ project.name }}</a></h3>
+        <span class="badge">{{ project.status }}</span>
+      </header>
+      <p>{{ project.description[:140] }}{% if project.description|length > 140 %}…{% endif %}</p>
+      <footer>
+        <span class="meta">{{ project.owner }}</span>
+        <span class="meta">{{ project.created_at.strftime('%d.%m.%Y') }}</span>
+      </footer>
+    </article>
+  {% else %}
+    <p>Проекты не найдены. Добавьте первый.</p>
+  {% endfor %}
+</div>
+{% endblock %}
