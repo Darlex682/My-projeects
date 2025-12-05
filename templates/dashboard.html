@@ -7,6 +7,15 @@
     <div class="card"><span>{{ status }}</span><strong>{{ count }}</strong></div>
   {% endfor %}
 </div>
+<section class="card chart-card">
+  <div class="card-header">
+    <div>
+      <p class="eyebrow">Динамика</p>
+      <h2 style="margin:0">Распределение по статусу</h2>
+    </div>
+  </div>
+  <canvas id="statusChart" height="220" aria-label="Диаграмма статусов" role="img"></canvas>
+</section>
 <section>
   <h2>Последние проекты</h2>
   <table class="data-table">
@@ -25,4 +34,41 @@
     </tbody>
   </table>
 </section>
+{% block scripts %}
+  {{ super() }}
+  <script>
+    const ctx = document.getElementById('statusChart');
+    const labels = {{ chart_labels|tojson }};
+    const values = {{ chart_values|tojson }};
+
+    const palette = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#6366f1'];
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Кол-во проектов',
+          data: values,
+          backgroundColor: labels.map((_, i) => palette[i % palette.length]),
+          borderRadius: 6,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0f172a',
+            titleColor: '#fff',
+            bodyColor: '#e5e7eb',
+          }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+      }
+    });
+  </script>
+{% endblock %}
 {% endblock %}

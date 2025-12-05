@@ -3,6 +3,8 @@ from datetime import datetime
 from flask import Flask, jsonify, redirect, render_template, request, url_for
 from flask_sqlalchemy import SQLAlchemy
 
+from sqlalchemy.exc import OperationalError
+
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DB_PATH = os.path.join(BASE_DIR, "app.db")
 
@@ -12,14 +14,38 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 
+_DB_READY = False
+
+
 def ensure_db_setup():
-    """Create database tables once at startup."""
+    """Create database tables once at startup or before serving requests.
+
+    The guard avoids repeated work while still recovering if the SQLite file
+    was deleted between launches.
+    """
+    global _DB_READY
+    if _DB_READY:
+        return
+
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+            _DB_READY = True
+        except OperationalError:
+            # Try one more time in case of transient startup races.
+            db.session.rollback()
+            db.create_all()
+            _DB_READY = True
 
 
 # Ensure tables exist when the module is imported (local run and WSGI hosting).
 ensure_db_setup()
+
+
+@app.before_request
+def ensure_db_before_request():
+    """Guarantee the DB schema is present before handling a request."""
+    ensure_db_setup()
 
 
 class Project(db.Model):
@@ -117,11 +143,15 @@ def dashboard():
     )
     recent_projects = Project.query.order_by(Project.created_at.desc()).limit(5).all()
     status_summary = {status: count for status, count in by_status}
+    chart_labels = list(status_summary.keys())
+    chart_values = [status_summary[status] for status in chart_labels]
     return render_template(
         "dashboard.html",
         total_projects=total_projects,
         status_summary=status_summary,
         recent_projects=recent_projects,
+        chart_labels=chart_labels,
+        chart_values=chart_values,
     )
 
 
